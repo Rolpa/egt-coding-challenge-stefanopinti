@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(PersonController.BASE_URL)
@@ -26,12 +27,7 @@ public class PersonController {
 
     @GetMapping("/")
     public ResponseEntity<List<PersonDto>> getAll() {
-        ArrayList personList = new ArrayList<>();
-//        personList.add(new PersonDto());
-//        personList.add(new PersonDto());
-//        personList.add(new PersonDto());
-        System.out.println(personService.getAllPersons());
-        personService.getAllPersons().stream().map(entity -> personList.add(personMapper.toDto(entity)));
+        List<PersonDto> personList = personService.getAllPersons().stream().map(entity -> personMapper.toDto(entity)).collect(Collectors.toList());
         System.out.println(personList);
 
         return ResponseEntity.ok().body(personList);
@@ -44,10 +40,7 @@ public class PersonController {
 
     @PostMapping
     public ResponseEntity<PersonDto> create(@RequestBody PersonDto person) {
-        System.out.println(person);
         Person newPerson = personMapper.toEntity(person);
-        System.out.println("testing");
-        System.out.println(newPerson.getFirstName() + newPerson.getMainAddress().getStreet1());
         personService.insertPerson(newPerson);
 
         return ResponseEntity.created(URI.create("/api/persons/id_goes_here")).body(new PersonDto());

@@ -10,7 +10,7 @@ import java.util.HashSet;
 public class PersonMapperImpl implements PersonMapper {
     @Override
     public PersonDto toDto(Person entity) {
-        // TODO implement method to transform Person object to PersonDto
+        System.out.println(entity);
 
         PersonDto dto = new PersonDto(entity.getId(),entity.getFirstName(), entity.getLastName(), entity.getBirthDate(),
                 entity.getMainAddress().getStreet1(), entity.getMainAddress().getStreet2(), entity.getMainAddress().getCity(),

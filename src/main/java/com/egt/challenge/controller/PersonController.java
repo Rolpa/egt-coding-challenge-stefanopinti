@@ -2,6 +2,7 @@ package com.egt.challenge.controller;
 
 import com.egt.challenge.dto.PersonDto;
 import com.egt.challenge.dto.PersonMapper;
+import com.egt.challenge.model.Person;
 import com.egt.challenge.service.PersonService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -26,9 +27,12 @@ public class PersonController {
     @GetMapping("/")
     public ResponseEntity<List<PersonDto>> getAll() {
         ArrayList personList = new ArrayList<>();
-        personList.add(new PersonDto());
-        personList.add(new PersonDto());
-        personList.add(new PersonDto());
+//        personList.add(new PersonDto());
+//        personList.add(new PersonDto());
+//        personList.add(new PersonDto());
+        System.out.println(personService.getAllPersons());
+        personService.getAllPersons().stream().map(entity -> personList.add(personMapper.toDto(entity)));
+        System.out.println(personList);
 
         return ResponseEntity.ok().body(personList);
     }
@@ -40,6 +44,12 @@ public class PersonController {
 
     @PostMapping
     public ResponseEntity<PersonDto> create(@RequestBody PersonDto person) {
+        System.out.println(person);
+        Person newPerson = personMapper.toEntity(person);
+        System.out.println("testing");
+        System.out.println(newPerson.getFirstName() + newPerson.getMainAddress().getStreet1());
+        personService.insertPerson(newPerson);
+
         return ResponseEntity.created(URI.create("/api/persons/id_goes_here")).body(new PersonDto());
     }
 

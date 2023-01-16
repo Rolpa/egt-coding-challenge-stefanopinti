@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -28,14 +29,21 @@ public class PersonController {
     @GetMapping("/")
     public ResponseEntity<List<PersonDto>> getAll() {
         List<PersonDto> personList = personService.getAllPersons().stream().map(entity -> personMapper.toDto(entity)).collect(Collectors.toList());
-        System.out.println(personList);
 
         return ResponseEntity.ok().body(personList);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PersonDto> getById(@PathVariable Long id) {
-        return ResponseEntity.ok().body(new PersonDto());
+        Optional<Person> personOptional = personService.getSinglePersonById(id);
+
+        if (personOptional.isPresent()) {
+            PersonDto personDto = personMapper.toDto(personService.getSinglePersonById(id).get());
+            return ResponseEntity.ok().body(personDto);
+        }
+        else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping
@@ -48,10 +56,10 @@ public class PersonController {
 
     @PostMapping("/lastName")
     public ResponseEntity<List<PersonDto>> createAndReturnMatchingBySurname(@RequestBody PersonDto person) {
-        ArrayList personList = new ArrayList<>();
-        personList.add(new PersonDto());
-        personList.add(new PersonDto());
-        personList.add(new PersonDto());
+        Person newPerson = personMapper.toEntity(person);
+        personService.insertPerson(newPerson);
+
+        List<PersonDto> personList = personService.getAllPersonsWithLastName(person.getLastName()).stream().map(entity -> personMapper.toDto(entity)).collect(Collectors.toList());
 
         return ResponseEntity.created(URI.create("/api/persons/id_goes_here")).body(personList);
     }

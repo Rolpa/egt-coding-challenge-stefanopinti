@@ -32,7 +32,7 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public void insertPerson(Person person) throws UnsupportedOperationException {
-        System.out.println("inserting person");
+
         if(person.getId() != null) {
             throw new UnsupportedOperationException();
         }

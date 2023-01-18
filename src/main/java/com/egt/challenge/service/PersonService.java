@@ -12,9 +12,9 @@ public interface PersonService {
 
     public Optional<Person> getSinglePersonById(Long id);
 
-    public void insertPerson(Person person) throws UnsupportedOperationException;
+    public Person insertPerson(Person person) throws UnsupportedOperationException;
 
-    public void updatePerson(Person person) throws UnsupportedOperationException;
+    public Person updatePerson(Person person) throws UnsupportedOperationException;
 
     public void removePerson(Person person) throws UnsupportedOperationException;
 }

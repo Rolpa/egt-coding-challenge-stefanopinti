@@ -6,8 +6,11 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +20,12 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public List<Person> getAllPersons() {
-        return personRepository.findAll();
+        List<Person> allPersons = personRepository.findAll();
+
+        Comparator<Person> comparator = Comparator.comparing(person -> person.getLastName());
+        comparator = comparator.thenComparing(Comparator.comparing(person -> person.getFirstName()));
+
+        return allPersons.stream().sorted(comparator).toList();
     }
 
     @Override
@@ -31,7 +39,7 @@ public class PersonServiceImpl implements PersonService {
     }
 
     @Override
-    public void insertPerson(Person person) throws UnsupportedOperationException {
+    public Person insertPerson(Person person) throws UnsupportedOperationException {
 
         if(person.getId() != null) {
             throw new UnsupportedOperationException();
@@ -39,16 +47,40 @@ public class PersonServiceImpl implements PersonService {
 
         personRepository.save(person);
 
+        return person;
+
     }
 
     @Override
-    public void updatePerson(Person person) throws UnsupportedOperationException {
+    public Person updatePerson(Person person) throws UnsupportedOperationException {
+        if(person.getId() == null) {
+            throw new UnsupportedOperationException("Cannot update a person without an ID.");
+        }
+        else if (person.getMainAddress() == null) {
+            throw new UnsupportedOperationException("Cannot update a person to have a null main address.");
+        }
+
+        Optional<Person> oldRecordOptional = personRepository.findById(person.getId());
+
+        if (oldRecordOptional.isPresent()) {
+            Person oldRecord = oldRecordOptional.get();
+
+            if (oldRecord.getBirthDate().compareTo(person.getBirthDate()) != 0) {
+                throw new UnsupportedOperationException("Cannot update a person to have a different birthday.");
+            }
+
+            personRepository.save(person);
+            return person;
+        }
+        else {
+            throw new UnsupportedOperationException("The person with id (" + person.getId() + ") could not be found.");
+        }
 
     }
 
     @Override
     public void removePerson(Person person) throws UnsupportedOperationException {
-
+        personRepository.delete(person);
     }
 
 }

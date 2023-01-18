@@ -10,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -47,17 +46,27 @@ public class PersonController {
     }
 
     @PostMapping
-    public ResponseEntity<PersonDto> create(@RequestBody PersonDto person) {
+    public ResponseEntity<?> create(@RequestBody PersonDto person) {
         Person newPerson = personMapper.toEntity(person);
-        personService.insertPerson(newPerson);
+        try {
+            personService.insertPerson(newPerson);
+        }
+        catch (UnsupportedOperationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
 
-        return ResponseEntity.created(URI.create("/api/persons/id_goes_here")).body(new PersonDto());
+        return ResponseEntity.created(URI.create("/api/persons/id_goes_here")).body(null);
     }
 
     @PostMapping("/lastName")
-    public ResponseEntity<List<PersonDto>> createAndReturnMatchingBySurname(@RequestBody PersonDto person) {
+    public ResponseEntity<?> createAndReturnMatchingBySurname(@RequestBody PersonDto person) {
         Person newPerson = personMapper.toEntity(person);
-        personService.insertPerson(newPerson);
+        try {
+            personService.insertPerson(newPerson);
+        }
+        catch (UnsupportedOperationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
 
         List<PersonDto> personList = personService.getAllPersonsWithLastName(person.getLastName()).stream().map(entity -> personMapper.toDto(entity)).collect(Collectors.toList());
 
@@ -65,12 +74,29 @@ public class PersonController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PersonDto> updateByID(@RequestBody PersonDto person, @PathVariable Long id) {
+    public ResponseEntity<?> update(@RequestBody PersonDto person, @PathVariable Long id) {
+        Person newPerson = personMapper.toEntity(person);
+        try {
+            personService.insertPerson(newPerson);
+        }
+        catch (UnsupportedOperationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
+
         return ResponseEntity.ok().body(null);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<PersonDto> deleteById(@PathVariable Long id) {
+    public ResponseEntity<?> deleteById(@RequestBody PersonDto person, @PathVariable Long id) {
+        Person newPerson = personMapper.toEntity(person);
+        try {
+            personService.removePerson(newPerson);
+        }
+        catch (UnsupportedOperationException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
         return ResponseEntity.ok().body(null);
     }
 }
